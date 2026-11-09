@@ -1,0 +1,24 @@
+# Closed vocabulary of vulnerability types, shared by every model and app.
+# Kept coarse on purpose: add types for new classes of bug, not for new instances.
+types:
+  - {id: hardcoded_secret, cwe: 798, description: "Credentials, API keys or tokens embedded in code or resources"}
+  - {id: cloud_misconfiguration, cwe: 284, description: "Cloud identifiers or settings that grant unintended access to backend resources"}
+  - {id: authentication_flaw, cwe: 287, description: "Authentication or session checks that can be bypassed or are missing"}
+  - {id: insecure_data_storage, cwe: 312, description: "Sensitive data stored without adequate protection"}
+  - {id: sensitive_data_logging, cwe: 532, description: "Sensitive data written to logs"}
+  - {id: exported_component_exposure, cwe: 926, description: "Exported component performing sensitive work without adequate protection"}
+  - {id: intent_redirection, cwe: 940, description: "Attacker-supplied Intent or Intent data forwarded to a privileged operation"}
+  - {id: implicit_intent_exposure, cwe: 927, description: "Implicit intent or broadcast that other apps can intercept or spoof"}
+  - {id: insecure_broadcast_receiver, cwe: 925, description: "Broadcast receiver that trusts data from unauthenticated senders"}
+  - {id: content_provider_exposure, cwe: 200, description: "Content provider exposing data or operations to unauthorized callers"}
+  - {id: arbitrary_file_access, cwe: 22, description: "Attacker-influenced file paths, or file sharing configured too broadly"}
+  - {id: sql_injection, cwe: 89, description: "Untrusted input concatenated into SQL queries"}
+  - {id: webview_url_loading, cwe: 939, description: "Untrusted or weakly validated URL loaded into a WebView"}
+  - {id: webview_insecure_settings, cwe: 749, description: "WebView settings or JavaScript bridges that widen the attack surface"}
+  - {id: tls_validation_bypass, cwe: 295, description: "Certificate, hostname or TLS error checks disabled or ignored"}
+  - {id: cleartext_traffic, cwe: 319, description: "Sensitive traffic permitted or sent without encryption"}
+  - {id: dynamic_code_loading, cwe: 94, description: "Code loaded or executed from a source an attacker can influence"}
+  - {id: weak_cryptography, cwe: 327, description: "Broken algorithms, static keys or predictable randomness in security contexts"}
+  - {id: vulnerable_dependency, cwe: 1104, description: "Bundled third-party component with known or likely security issues"}
+  - {id: insecure_app_configuration, cwe: 489, description: "Risky application-level manifest settings such as debug or backup flags"}
+  - {id: other, cwe: null, description: "A real security issue that fits no other type"}

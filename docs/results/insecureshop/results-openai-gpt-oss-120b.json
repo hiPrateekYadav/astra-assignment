@@ -1,0 +1,294 @@
+{
+  "reference": "ground truth insecureshop.yaml",
+  "reference_size": 19,
+  "labels": {
+    "1": "Hardcoded Credentials",
+    "2": "Insufficient URL Validation",
+    "3": "Weak Host Validation Check",
+    "4": "Arbitrary Code Execution",
+    "5": "Access to Protected Components",
+    "6": "Unprotected Data URIs",
+    "7": "Theft of Arbitrary",
+    "8": "Using Components with Known Vulnerabilities",
+    "9": "Insecure Broadcast Receiver",
+    "10": "AWS Cognito Misconfiguration",
+    "11": "Insecure use of FilePaths in FileProvider",
+    "12": "Use of Implicit intent to send a broadcast with sensitive data",
+    "13": "Intercepting Implicit intent to load arbitrary URL",
+    "14": "Insecure Implementation of SetResult in exported Activity",
+    "15": "Insecure Content Provider",
+    "16": "Lack of SSL Certificate Validation",
+    "17": "Insecure Webview Properties Enabled",
+    "18": "Insecure Data Storage",
+    "19": "Insecure Logging"
+  },
+  "teacher": [
+    {
+      "report": "teacher-gemini-3-flash-preview-baseline-r0.json",
+      "model": "gemini-3-flash-preview",
+      "repeat": 0,
+      "complete": true,
+      "findings": 21,
+      "matched_ids": [
+        "1",
+        "2",
+        "4",
+        "5",
+        "6",
+        "7",
+        "9",
+        "10",
+        "11",
+        "12",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19"
+      ],
+      "recall": 0.7894736842105263,
+      "precision": 0.7142857142857143
+    }
+  ],
+  "baseline": [
+    {
+      "report": "student-openai-gpt-oss-120b-baseline-r0.json",
+      "model": "openai/gpt-oss-120b",
+      "repeat": 0,
+      "complete": true,
+      "findings": 19,
+      "matched_ids": [
+        "1",
+        "6",
+        "7",
+        "10",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19"
+      ],
+      "recall": 0.47368421052631576,
+      "precision": 0.47368421052631576
+    },
+    {
+      "report": "student-openai-gpt-oss-120b-baseline-r1.json",
+      "model": "openai/gpt-oss-120b",
+      "repeat": 1,
+      "complete": true,
+      "findings": 17,
+      "matched_ids": [
+        "1",
+        "4",
+        "5",
+        "6",
+        "10",
+        "11",
+        "16",
+        "17",
+        "18",
+        "19"
+      ],
+      "recall": 0.5263157894736842,
+      "precision": 0.5882352941176471
+    },
+    {
+      "report": "student-openai-gpt-oss-120b-baseline-r2.json",
+      "model": "openai/gpt-oss-120b",
+      "repeat": 2,
+      "complete": true,
+      "findings": 17,
+      "matched_ids": [
+        "1",
+        "2",
+        "6",
+        "10",
+        "11",
+        "16",
+        "17",
+        "18",
+        "19"
+      ],
+      "recall": 0.47368421052631576,
+      "precision": 0.5294117647058824
+    }
+  ],
+  "with_lessons": [
+    {
+      "report": "student-openai-gpt-oss-120b-lessons-r0.json",
+      "model": "openai/gpt-oss-120b",
+      "repeat": 0,
+      "complete": true,
+      "findings": 22,
+      "matched_ids": [
+        "1",
+        "4",
+        "5",
+        "6",
+        "7",
+        "10",
+        "11",
+        "12",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19"
+      ],
+      "recall": 0.6842105263157895,
+      "precision": 0.5909090909090909
+    },
+    {
+      "report": "student-openai-gpt-oss-120b-lessons-r1.json",
+      "model": "openai/gpt-oss-120b",
+      "repeat": 1,
+      "complete": true,
+      "findings": 21,
+      "matched_ids": [
+        "1",
+        "4",
+        "5",
+        "6",
+        "10",
+        "11",
+        "12",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19"
+      ],
+      "recall": 0.631578947368421,
+      "precision": 0.5714285714285714
+    },
+    {
+      "report": "student-openai-gpt-oss-120b-lessons-r2.json",
+      "model": "openai/gpt-oss-120b",
+      "repeat": 2,
+      "complete": true,
+      "findings": 21,
+      "matched_ids": [
+        "1",
+        "4",
+        "5",
+        "6",
+        "7",
+        "9",
+        "10",
+        "11",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19"
+      ],
+      "recall": 0.6842105263157895,
+      "precision": 0.6190476190476191
+    }
+  ],
+  "baseline_summary": {
+    "runs": 3,
+    "recall_mean": 0.49122807017543857,
+    "recall_min": 0.47368421052631576,
+    "recall_max": 0.5263157894736842,
+    "findings_mean": 17.666666666666668,
+    "precision_mean": 0.5304437564499485
+  },
+  "lessons_summary": {
+    "runs": 3,
+    "recall_mean": 0.6666666666666666,
+    "recall_min": 0.631578947368421,
+    "recall_max": 0.6842105263157895,
+    "findings_mean": 21.333333333333332,
+    "precision_mean": 0.5937950937950938
+  },
+  "teacher_summary": {
+    "runs": 1,
+    "recall_mean": 0.7894736842105263,
+    "recall_min": 0.7894736842105263,
+    "recall_max": 0.7894736842105263,
+    "findings_mean": 21.0,
+    "precision_mean": 0.7142857142857143
+  },
+  "lift": 0.17543859649122806,
+  "hit_rates": {
+    "1": [
+      1.0,
+      1.0
+    ],
+    "2": [
+      0.3333333333333333,
+      0.0
+    ],
+    "3": [
+      0.0,
+      0.0
+    ],
+    "4": [
+      0.3333333333333333,
+      1.0
+    ],
+    "5": [
+      0.3333333333333333,
+      1.0
+    ],
+    "6": [
+      1.0,
+      1.0
+    ],
+    "7": [
+      0.3333333333333333,
+      0.6666666666666666
+    ],
+    "8": [
+      0.0,
+      0.0
+    ],
+    "9": [
+      0.0,
+      0.3333333333333333
+    ],
+    "10": [
+      1.0,
+      1.0
+    ],
+    "11": [
+      0.6666666666666666,
+      1.0
+    ],
+    "12": [
+      0.0,
+      0.6666666666666666
+    ],
+    "13": [
+      0.0,
+      0.0
+    ],
+    "14": [
+      0.0,
+      0.0
+    ],
+    "15": [
+      0.3333333333333333,
+      1.0
+    ],
+    "16": [
+      1.0,
+      1.0
+    ],
+    "17": [
+      1.0,
+      1.0
+    ],
+    "18": [
+      1.0,
+      1.0
+    ],
+    "19": [
+      1.0,
+      1.0
+    ]
+  },
+  "lessons_used": 14,
+  "warnings": []
+}

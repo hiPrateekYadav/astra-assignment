@@ -1,0 +1,162 @@
+# Everything that varies by run lives here. Nothing app-specific belongs in src/.
+
+app:
+  path: apps/InsecureShop.apk   # an .apk (decompiled automatically) or a decompiled directory; override with --app
+  ground_truth: null            # optional file; null means measure against teacher findings
+
+ingest:
+  jadx_command: jadx            # only needed when app.path is an .apk
+  jadx_timeout_seconds: 900
+  decompiled_dir: data/runs/decompiled
+  max_asset_bytes: 100000
+
+  # App packages are inferred from the manifest. List extras here if inference misses any.
+  first_party_prefixes: []
+
+  # Bundled code that is never scanned. A prefix covering the app's own package is ignored.
+  library_prefixes:
+    - android
+    - androidx
+    - java
+    - javax
+    - kotlin
+    - kotlinx
+    - dagger
+    - okhttp3
+    - okio
+    - retrofit2
+    - rx
+    - io.reactivex
+    - com.bumptech.glide
+    - com.facebook
+    - com.google.android.gms
+    - com.google.android.material
+    - com.google.android.play
+    - com.google.common
+    - com.google.firebase
+    - com.google.gson
+    - com.google.protobuf
+    - com.squareup
+    - org.intellij
+    - org.jetbrains
+
+  # Build-generated code, matched against a file name or its path under the source root.
+  # BuildConfig stays in on purpose: it is a common home for hardcoded secrets.
+  generated_patterns:
+    - R.java
+    - R$*.java
+    - BR.java
+    - "*/databinding/*"
+    - DataBinderMapperImpl.java
+    - DataBindingInfo.java
+    - "*_Factory.java"
+    - "*_MembersInjector.java"
+    - "Hilt_*.java"
+
+  # strings.xml entries that come from UI libraries.
+  library_string_prefixes:
+    - abc_
+    - appbar_
+    - bottom_sheet_
+    - character_counter_
+    - chip_
+    - clear_text_
+    - common_google_
+    - common_signin_
+    - error_icon_
+    - exposed_dropdown_
+    - fab_
+    - hide_
+    - icon_content_
+    - item_view_
+    - material_
+    - mtrl_
+    - password_toggle_
+    - path_password_
+    - search_menu_
+    - status_bar_
+    - v7_
+
+  # Files under res/xml that come from UI libraries.
+  library_resource_patterns:
+    - standalone_badge*
+
+  text_asset_suffixes: [.json, .xml, .properties, .txt, .yml, .yaml, .html, .js, .conf, .cfg, .ini, .env]
+
+scan:
+  taxonomy: config/taxonomy.yaml
+  output_dir: data/runs
+  max_chunk_tokens: 2500        # default; prompt, digest and output must fit the tightest rate limit
+  overlap_lines: 20             # shared lines when an oversized file is split
+  max_total_tokens: 200000      # above this, the riskiest code is scanned and the rest reported as skipped
+  require_verified_evidence: true   # drop findings whose quoted code is not in the file
+  max_failed_chunk_ratio: 0.1   # a run with more failed chunks than this is not scored
+  max_digest_tokens: 1500       # above this, each chunk gets only the manifest entries for its own code
+
+  # Regexes that rank code when the budget cannot cover everything.
+  priority_patterns:
+    - loadUrl|evaluateJavascript|addJavascriptInterface|WebSettings|WebViewClient
+    - getIntent|getParcelableExtra|getStringExtra|getExtras|startActivity|setResult
+    - sendBroadcast|registerReceiver|onReceive
+    - ContentProvider|rawQuery|execSQL|openFile
+    - SharedPreferences|getExternalStorage|openFileOutput|FileOutputStream
+    - TrustManager|HostnameVerifier|onReceivedSslError|SSLContext
+    - Cipher|MessageDigest|SecretKeySpec|KeyStore
+    - DexClassLoader|loadClass|createPackageContext|Runtime\.getRuntime|loadLibrary
+    - (?i)password|secret|token|api_?key
+
+match:
+  line_window: 15               # teacher-as-reference: a student finding this many lines away still counts
+  require_anchor: true          # ground truth: an entry's anchor token must appear at the reported code
+  anchor_window_lines: 8        # ...in the evidence or this many lines around its verified line; 0 = evidence only
+
+lessons:
+  max_lessons: 15
+  reject_app_specific: true     # drop lessons naming the app's classes, packages or string literals
+
+# A provider is data. Any OpenAI-compatible API needs only a new entry here.
+# Other wire formats need one adapter file registered with @register_adapter.
+providers:
+  gemini:
+    adapter: openai_compatible
+    base_url: https://generativelanguage.googleapis.com/v1beta/openai
+    api_key_env: GEMINI_API_KEY
+    timeout_seconds: 180        # large chunks take longer
+  groq:
+    adapter: openai_compatible
+    base_url: https://api.groq.com/openai/v1
+    api_key_env: GROQ_API_KEY
+    timeout_seconds: 90
+  openai:
+    adapter: openai_compatible
+    base_url: https://api.openai.com/v1
+    api_key_env: OPENAI_API_KEY
+    max_tokens_param: max_completion_tokens
+    timeout_seconds: 180
+  anthropic:
+    adapter: anthropic
+    base_url: https://api.anthropic.com
+    api_key_env: ANTHROPIC_API_KEY
+    timeout_seconds: 300
+
+roles:
+  teacher:
+    provider: gemini
+    model: gemini-3-flash-preview
+    temperature: 0
+    max_output_tokens: 32768
+    max_chunk_tokens: 12000     # large context, but free tier allows only 20 requests a day per model
+  student:
+    # Any open model works; Groq's free tier caps each model at ~200k tokens/day (about 5 runs).
+    # Unusable on free tiers: qwen/qwen3.8-27b, gemma-4-* on AI Studio.
+    provider: groq
+    model: openai/gpt-oss-120b
+    temperature: 0
+    max_output_tokens: 3500
+    extra_params:
+      reasoning_effort: low     # otherwise reasoning can use the whole output budget on hard chunks
+
+retry:
+  max_attempts: 5
+  base_delay_seconds: 2
+  max_delay_seconds: 120        # a longer wait (e.g. a daily quota) fails instead of sleeping

@@ -1,0 +1,2 @@
+# Keep LF on every OS: CRLF breaks shell scripts in the image and the hashes in FROZEN.sha256.
+* text=auto eol=lf

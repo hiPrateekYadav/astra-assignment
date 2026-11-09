@@ -1,0 +1,222 @@
+{
+  "package": "com.insecureshop",
+  "role": "student",
+  "model": "openai/gpt-oss-120b",
+  "repeat": 1,
+  "lessons": [],
+  "chunks_total": 9,
+  "skipped_files": [],
+  "failed_chunks": [],
+  "duplicates_removed": 0,
+  "retyped_as_other": 0,
+  "findings": [
+    {
+      "type": "insecure_app_configuration",
+      "title": "Debuggable, backup enabled, and cleartext traffic allowed",
+      "severity": "high",
+      "file": "AndroidManifest.xml",
+      "line": 24,
+      "evidence": "android:debuggable=\"true\"",
+      "rationale": "The app is built with debuggable=\"true\", allowBackup=\"true\", and usesCleartextTraffic=\"true\". An attacker with physical access or via adb can attach a debugger, extract app data from backup, and intercept unencrypted network traffic.",
+      "evidence_verified": true,
+      "chunk_id": "chunk-001"
+    },
+    {
+      "type": "content_provider_exposure",
+      "title": "Exported ContentProvider with normal read permission",
+      "severity": "high",
+      "file": "AndroidManifest.xml",
+      "line": 52,
+      "evidence": "android:exported=\"true\"",
+      "rationale": "The InsecureShopProvider is exported and protected only by a custom permission declared as normal. Any app can request this permission and read the provider’s data, leading to unauthorized data exposure.",
+      "evidence_verified": true,
+      "chunk_id": "chunk-001"
+    },
+    {
+      "type": "insecure_data_storage",
+      "title": "Credentials stored in Prefs are broadcast in cleartext",
+      "severity": "medium",
+      "file": "com/insecureshop/AboutUsActivity.java",
+      "line": 89,
+      "evidence": "sendBroadcast(intent);",
+      "rationale": "AboutUsActivity (exported) reads stored username and password from Prefs and sends them via an unprotected broadcast. Any app can invoke this activity (or trigger onSendData) and capture the broadcast, exposing sensitive credentials.",
+      "evidence_verified": true,
+      "chunk_id": "chunk-001"
+    },
+    {
+      "type": "exported_component_exposure",
+      "title": "ChooserActivity writes arbitrary files to external storage",
+      "severity": "high",
+      "file": "com/insecureshop/ChooserActivity.java",
+      "line": 50,
+      "evidence": "Intent intent = getIntent();",
+      "rationale": "ChooserActivity is exported implicitly and accepts any VIEW or SEND intent. An attacker can supply a content Uri via the EXTRA_STREAM extra, causing makeTempCopy to write the supplied data to a world‑readable location on external storage with a filename controlled by the attacker, leading to arbitrary file creation/overwrite.",
+      "evidence_verified": true,
+      "chunk_id": "chunk-003"
+    },
+    {
+      "type": "sensitive_data_logging",
+      "title": "Username and password logged in cleartext",
+      "severity": "medium",
+      "file": "com/insecureshop/LoginActivity.java",
+      "line": 88,
+      "evidence": "Log.d(\"password\", password);",
+      "rationale": "LoginActivity logs both the username and password using Log.d, which can be read from logcat by any app with READ_LOGS permission or via debugging, exposing credentials.",
+      "evidence_verified": true,
+      "chunk_id": "chunk-003"
+    },
+    {
+      "type": "dynamic_code_loading",
+      "title": "Loading and invoking code from external app based on package name",
+      "severity": "high",
+      "file": "com/insecureshop/LoginActivity.java",
+      "line": 111,
+      "evidence": "Object value = packageContext.getClassLoader().loadClass(\"com.insecureshopapp.MainInterface\").getMethod(\"getInstance\", Context.class).invoke(null, this);",
+      "rationale": "If an attacker installs a malicious app whose package name starts with \"com.insecureshopapp\", the code will load and execute classes from that app, allowing arbitrary code execution within the vulnerable app's process.",
+      "evidence_verified": true,
+      "chunk_id": "chunk-003"
+    },
+    {
+      "type": "webview_insecure_settings",
+      "title": "WebView allows universal access from file URLs",
+      "severity": "high",
+      "file": "com/insecureshop/PrivateActivity.java",
+      "line": 67,
+      "evidence": "settings5.setAllowUniversalAccessFromFileURLs(true);",
+      "rationale": "The activity enables universal access from file URLs, allowing a malicious file loaded in the WebView to access any origin, facilitating cross‑origin attacks such as XSS or data exfiltration.",
+      "evidence_verified": true,
+      "chunk_id": "chunk-004"
+    },
+    {
+      "type": "webview_url_loading",
+      "title": "WebView loads URL from untrusted Intent extra without validation",
+      "severity": "high",
+      "file": "com/insecureshop/PrivateActivity.java",
+      "line": 68,
+      "evidence": "String data = getIntent().getStringExtra(\"url\");",
+      "rationale": "An attacker can launch PrivateActivity (if it becomes exported or via a crafted Intent) and supply an arbitrary URL, which the WebView will load with JavaScript enabled, leading to remote code execution or phishing.",
+      "evidence_verified": true,
+      "chunk_id": "chunk-004"
+    },
+    {
+      "type": "intent_redirection",
+      "title": "WebView2Activity forwards attacker-controlled Intent via extra_intent",
+      "severity": "high",
+      "file": "com/insecureshop/WebView2Activity.java",
+      "line": 53,
+      "evidence": "Intent extraIntent = (Intent) getIntent().getParcelableExtra(\"extra_intent\");\nif (extraIntent != null) {\n    startActivity(extraIntent);\n    finish();\n    return;\n}",
+      "rationale": "An attacker can launch the exported WebView2Activity with a crafted \"extra_intent\" extra containing any Intent. The activity will blindly start that Intent, allowing privilege escalation or launching of malicious components with the app's context.",
+      "evidence_verified": true,
+      "chunk_id": "chunk-006"
+    },
+    {
+      "type": "webview_insecure_settings",
+      "title": "WebView2Activity enables universal file access in WebView",
+      "severity": "medium",
+      "file": "com/insecureshop/WebView2Activity.java",
+      "line": 73,
+      "evidence": "settings4.setAllowUniversalAccessFromFileURLs(true);",
+      "rationale": "Enabling universal access from file URLs allows a malicious file:// page loaded in the WebView to access any origin, facilitating XSS or data exfiltration attacks.",
+      "evidence_verified": true,
+      "chunk_id": "chunk-006"
+    },
+    {
+      "type": "webview_url_loading",
+      "title": "WebView2Activity loads arbitrary URLs from unvalidated Intent data",
+      "severity": "high",
+      "file": "com/insecureshop/WebView2Activity.java",
+      "line": 83,
+      "evidence": "webview.loadUrl(intent2.getDataString());",
+      "rationale": "The activity accepts URLs from the launching Intent’s data string, query parameter, or extras without any validation, enabling an attacker to load malicious web content, potentially executing JavaScript (enabled) and accessing device resources.",
+      "evidence_verified": true,
+      "chunk_id": "chunk-006"
+    },
+    {
+      "type": "exported_component_exposure",
+      "title": "ContentProvider leaks credentials",
+      "severity": "high",
+      "file": "com/insecureshop/contentProvider/InsecureShopProvider.java",
+      "line": 59,
+      "evidence": "MatrixCursor cursor = new MatrixCursor(new String[]{\"username\", \"password\"});",
+      "rationale": "The provider com.insecureshop.contentProvider.InsecureShopProvider is exported (readPermission is a normal permission that any app can obtain). Its query() method returns the stored username and password from Prefs without any authentication, allowing any other app to read sensitive credentials.",
+      "evidence_verified": true,
+      "chunk_id": "chunk-007"
+    },
+    {
+      "type": "tls_validation_bypass",
+      "title": "WebView ignores SSL errors",
+      "severity": "medium",
+      "file": "com/insecureshop/util/CustomWebViewClient.java",
+      "line": 16,
+      "evidence": "handler.proceed();",
+      "rationale": "CustomWebViewClient overrides onReceivedSslError and unconditionally calls handler.proceed(), bypassing SSL certificate validation. An attacker controlling the network can perform a man‑in‑the‑middle attack and inject content that the WebView will load over HTTPS.",
+      "evidence_verified": true,
+      "chunk_id": "chunk-007"
+    },
+    {
+      "type": "hardcoded_secret",
+      "title": "Hardcoded user credentials in Util",
+      "severity": "high",
+      "file": "com/insecureshop/util/Util.java",
+      "line": 25,
+      "evidence": "map.put(\"shopuser\", \"!ns3csh0p\");",
+      "rationale": "The app stores a static username/password pair in code. An attacker can decompile the APK, read the hard‑coded password and use it to authenticate via verifyUserNamePassword, gaining unauthorized access to privileged functionality.",
+      "evidence_verified": true,
+      "chunk_id": "chunk-008"
+    },
+    {
+      "type": "insecure_data_storage",
+      "title": "Plaintext password stored in SharedPreferences",
+      "severity": "high",
+      "file": "com/insecureshop/util/Prefs.java",
+      "line": 100,
+      "evidence": "sharedPreferences.edit().putString(\"password\", value).apply();",
+      "rationale": "The password is saved directly in SharedPreferences without encryption. Any other app with READ_EXTERNAL_STORAGE (or if the device is rooted) can read the preferences file and extract the user's password, enabling credential theft.",
+      "evidence_verified": true,
+      "chunk_id": "chunk-008"
+    },
+    {
+      "type": "hardcoded_secret",
+      "title": "AWS Identity Pool ID hardcoded in resources",
+      "severity": "high",
+      "file": "res/values/strings.xml",
+      "line": 33,
+      "evidence": "<string name=\"aws_Identity_pool_ID\">us-east-1:7e9426f7-42af-4717-8689-00a9a4b65c1c</string>",
+      "rationale": "The AWS Cognito Identity Pool ID is embedded in the app's string resources, allowing any attacker who can decompile the APK to obtain the identifier and potentially interact with the associated AWS resources if other protections are weak.",
+      "evidence_verified": true,
+      "chunk_id": "chunk-009"
+    },
+    {
+      "type": "arbitrary_file_access",
+      "title": "FileProvider configured with root-path exposing entire filesystem",
+      "severity": "critical",
+      "file": "res/xml/provider_paths.xml",
+      "line": 3,
+      "evidence": "<root-path name=\"root\" path=\"/\"/>",
+      "rationale": "The FileProvider is declared with a <root-path> pointing to '/', which permits the app to share any file on the device via content URIs. A malicious app can request a content URI for arbitrary files and gain read access, leading to data leakage.",
+      "evidence_verified": true,
+      "chunk_id": "chunk-009"
+    }
+  ],
+  "dropped": [
+    {
+      "reason": "unverified_evidence",
+      "chunk_id": "chunk-003",
+      "finding": {
+        "type": "insecure_data_storage",
+        "title": "Password stored in plaintext SharedPreferences",
+        "severity": "high",
+        "file": "com/insecureshop/LoginActivity.java",
+        "line": 94,
+        "evidence": "prefs.getInstance(applicationContext).setPassword(password);",
+        "rationale": "After successful login the password is saved via Prefs without any encryption. Because the app allows READ_EXTERNAL_STORAGE and WRITE_EXTERNAL_STORAGE, other apps could read the stored preferences file and obtain the user's password."
+      }
+    }
+  ],
+  "usage": {
+    "calls": 9,
+    "cached_chunks": 0,
+    "input_tokens": 31769,
+    "output_tokens": 4047
+  }
+}

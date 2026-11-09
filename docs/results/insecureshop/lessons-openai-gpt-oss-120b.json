@@ -1,0 +1,121 @@
+{
+  "package": "com.insecureshop",
+  "model": "gemini-3-flash-preview",
+  "teacher_report": "teacher-gemini-3-flash-preview-baseline-r0.json",
+  "student_reports": [
+    "student-openai-gpt-oss-120b-baseline-r0.json",
+    "student-openai-gpt-oss-120b-baseline-r1.json",
+    "student-openai-gpt-oss-120b-baseline-r2.json"
+  ],
+  "findings_taught": 21,
+  "findings_missed_by_student": 8,
+  "lessons": [
+    {
+      "rule": "Exported components must not forward an Intent received from an external source to privileged methods like startActivity, startService, or sendBroadcast without strict validation.",
+      "types": [
+        "intent_redirection"
+      ],
+      "look_for": "Look for an exported Activity or Receiver that retrieves a Parcelable extra (the 'inner intent') and passes it directly to a method that starts a new component. It is safe only if the inner intent's destination is checked against a strict whitelist of trusted components."
+    },
+    {
+      "rule": "Loading code from other packages using createPackageContext with CONTEXT_INCLUDE_CODE is dangerous if the package name is not verified via signature comparison.",
+      "types": [
+        "dynamic_code_loading"
+      ],
+      "look_for": "Look for calls to createPackageContext() where the flags include CONTEXT_INCLUDE_CODE or CONTEXT_IGNORE_SECURITY. It is safe only if the app verifies that the target package's signing certificate matches a trusted certificate."
+    },
+    {
+      "rule": "Sensitive data must never be sent via implicit broadcasts because any application on the device can register to intercept the data.",
+      "types": [
+        "implicit_intent_exposure"
+      ],
+      "look_for": "Look for sendBroadcast() calls where the Intent specifies an action but does not call setPackage() or require a signature-level permission. It is safe if the Intent is explicit or restricted to the app's own package."
+    },
+    {
+      "rule": "WebViews that load URLs from Intent extras or deep link parameters without validation are vulnerable to phishing and local file theft.",
+      "types": [
+        "webview_url_loading"
+      ],
+      "look_for": "Look for webview.loadUrl() where the argument originates from getIntent(), getQueryParameter(), or similar untrusted sources. It is safe if the URL is validated against a whitelist of trusted domains and schemes (e.g., avoiding file://)."
+    },
+    {
+      "rule": "Exported Content Providers protected by permissions with 'normal' protection level are accessible to any app on the device.",
+      "types": [
+        "content_provider_exposure"
+      ],
+      "look_for": "In the AndroidManifest.xml, look for <provider> tags with android:exported='true' where the android:permission has a protectionLevel of 'normal'. It is safe if the protectionLevel is 'signature'."
+    },
+    {
+      "rule": "Exported or dynamically registered Broadcast Receivers that trigger sensitive UI or logic must validate the incoming Intent data.",
+      "types": [
+        "insecure_broadcast_receiver"
+      ],
+      "look_for": "Look for registerReceiver() calls without a permission string, or <receiver> tags in the manifest that are exported. It is safe if the receiver performs no sensitive actions or strictly validates the sender's identity."
+    },
+    {
+      "rule": "Using ContentResolver.openInputStream() on a URI provided by an external app can allow that app to trick your application into reading its own private files.",
+      "types": [
+        "arbitrary_file_access"
+      ],
+      "look_for": "Look for calls to openInputStream(uri) where the URI comes from an incoming Intent. It is safe if the app does not perform sensitive operations with the resulting stream, such as writing it to external storage or sending it over the network."
+    },
+    {
+      "rule": "Hardcoding backend identifiers, cloud credentials, or API keys in code or resources allows attackers to impersonate the application.",
+      "types": [
+        "hardcoded_secret",
+        "cloud_misconfiguration"
+      ],
+      "look_for": "Look for strings in res/values/strings.xml or hardcoded constants in code that resemble AWS Identity Pool IDs, Firebase keys, or internal passwords. Safe only if the identifiers are intended for public use and have restricted backend policies."
+    },
+    {
+      "rule": "Enabling setAllowUniversalAccessFromFileURLs allows JavaScript in a file:// context to bypass the Same-Origin Policy and access any local file or remote origin.",
+      "types": [
+        "webview_insecure_settings"
+      ],
+      "look_for": "Look for WebSettings.setAllowUniversalAccessFromFileURLs(true) or setAllowFileAccessFromFileURLs(true). These should remain false unless the WebView is strictly isolated and only loads trusted local content."
+    },
+    {
+      "rule": "Overriding onReceivedSslError and calling handler.proceed() disables all certificate validation, enabling Man-in-the-Middle (MitM) attacks.",
+      "types": [
+        "tls_validation_bypass"
+      ],
+      "look_for": "Look for WebViewClient implementations where onReceivedSslError calls SslErrorHandler.proceed(). It is safe only if the method calls handler.cancel() or implements a robust custom validation logic."
+    },
+    {
+      "rule": "The <root-path> element in a FileProvider configuration exposes the entire device filesystem to potential URI leakage.",
+      "types": [
+        "arbitrary_file_access"
+      ],
+      "look_for": "Look for <root-path> inside the FileProvider XML paths file. It is safe to use more restrictive tags like <files-path> or <cache-path> which limit access to the app's own data directories."
+    },
+    {
+      "rule": "Production applications should disable debugging, backups, and cleartext traffic in the manifest to reduce the attack surface.",
+      "types": [
+        "insecure_app_configuration",
+        "cleartext_traffic"
+      ],
+      "look_for": "In the <application> tag of the manifest, look for android:debuggable='true', android:allowBackup='true', or android:usesCleartextTraffic='true'. These should be false in a secure production environment."
+    },
+    {
+      "rule": "Logging sensitive information like passwords, tokens, or PII to the system log makes it accessible to anyone with physical access or ADB.",
+      "types": [
+        "sensitive_data_logging"
+      ],
+      "look_for": "Look for Log.d(), Log.i(), or similar calls that include variables containing user credentials or session identifiers. Safe if logging is stripped in release builds or only logs non-sensitive metadata."
+    },
+    {
+      "rule": "Storing sensitive data in plaintext in SharedPreferences or local databases is insecure as it can be extracted from backups or rooted devices.",
+      "types": [
+        "insecure_data_storage"
+      ],
+      "look_for": "Look for SharedPreferences.Editor.putString() calls where the key suggests sensitive data (e.g., 'password', 'token'). Safe if using EncryptedSharedPreferences or the Android Keystore to encrypt the data."
+    }
+  ],
+  "rejected": [],
+  "usage": {
+    "calls": 1,
+    "cached_chunks": 0,
+    "input_tokens": 3703,
+    "output_tokens": 1550
+  }
+}

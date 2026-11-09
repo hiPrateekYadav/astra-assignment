@@ -1,0 +1,12 @@
+services:
+  vulnscan:
+    build: .
+    image: vulnscan
+    env_file:
+      - path: .env
+        required: false
+    user: "${HOST_UID:-1000}:${HOST_GID:-1000}"  # so reports in data/ belong to you on Linux
+    volumes:
+      - ./config:/app/config:ro
+      - ./data:/app/data
+      - ./apps:/apps:ro

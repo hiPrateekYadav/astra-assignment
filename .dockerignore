@@ -1,0 +1,9 @@
+# Allowlist: .env, credentials.txt and target apps can never enter the build context.
+*
+!docker/install-jadx.sh
+!README.md
+!config
+!pyproject.toml
+!src
+**/__pycache__
+**/*.egg-info

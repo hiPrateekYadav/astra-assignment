@@ -1,0 +1,109 @@
+# Ground truth for InsecureShop: the 19 vulnerabilities in the project README.
+#
+# The titles are from the README, which gives no locations. `files`, `types` and `anchors` are a
+# human annotation made by reading the decompiled code BEFORE any model scan was run, and must not
+# be changed to suit model output.
+#
+#   files:   logical paths where the issue may correctly be reported
+#   types:   taxonomy IDs that fairly describe it
+#   anchors: code tokens separating it from other issues in the same file; a finding's
+#            evidence must contain at least one
+#
+# Uncertain: entry 8. The README names no library and its guidance site was unreachable.
+# net.gotev.uploadservice 3.2.3 is an inference from the exported service in the manifest.
+entries:
+  - id: 1
+    title: Hardcoded Credentials
+    files: [com/insecureshop/util/Util.java]
+    types: [hardcoded_secret]
+    anchors: [shopuser, ns3csh0p, getUserCreds]
+  - id: 2
+    title: Insufficient URL Validation
+    files: [com/insecureshop/WebViewActivity.java]
+    types: [webview_url_loading]
+    anchors: ['"/web"', getQueryParameter, loadUrl]
+  - id: 3
+    title: Weak Host Validation Check
+    files: [com/insecureshop/WebViewActivity.java]
+    types: [webview_url_loading]
+    anchors: [endsWith]
+  - id: 4
+    title: Arbitrary Code Execution
+    files: [com/insecureshop/LoginActivity.java]
+    types: [dynamic_code_loading]
+    anchors: [createPackageContext, loadClass, getClassLoader, MainInterface]
+  - id: 5
+    title: Access to Protected Components
+    files: [com/insecureshop/WebView2Activity.java]
+    types: [intent_redirection]
+    anchors: [extra_intent, extraIntent, getParcelableExtra]
+  - id: 6
+    title: Unprotected Data URIs
+    files: [com/insecureshop/WebView2Activity.java]
+    types: [webview_url_loading]
+    anchors: [getDataString, getData, getQueryParameter, loadUrl, getString]
+  - id: 7
+    title: Theft of Arbitrary
+    files: [com/insecureshop/ChooserActivity.java]
+    types: [arbitrary_file_access]
+    anchors: [android.intent.extra.STREAM, makeTempCopy, Uri.fromFile, getExternalStorageDirectory]
+  - id: 8
+    title: Using Components with Known Vulnerabilities
+    files: [libraries.txt, AndroidManifest.xml]
+    types: [vulnerable_dependency, exported_component_exposure]
+    anchors: [gotev, UploadService]
+  - id: 9
+    title: Insecure Broadcast Receiver
+    files: [com/insecureshop/AboutUsActivity.java, com/insecureshop/CustomReceiver.java]
+    types: [insecure_broadcast_receiver, webview_url_loading]
+    anchors: [registerReceiver, web_url, CUSTOM_INTENT]
+  - id: 10
+    title: AWS Cognito Misconfiguration
+    files: [res/values/strings.xml]
+    types: [cloud_misconfiguration, hardcoded_secret]
+    anchors: [aws_Identity_pool_ID, us-east-1]
+  - id: 11
+    title: Insecure use of FilePaths in FileProvider
+    files: [res/xml/provider_paths.xml, AndroidManifest.xml]
+    types: [arbitrary_file_access]
+    anchors: [root-path, provider_paths, FileProvider]
+  - id: 12
+    title: Use of Implicit intent to send a broadcast with sensitive data
+    files: [com/insecureshop/AboutUsActivity.java]
+    types: [implicit_intent_exposure]
+    anchors: [sendBroadcast, action.BROADCAST]
+  - id: 13
+    title: Intercepting Implicit intent to load arbitrary URL
+    files: [com/insecureshop/broadcast/ProductDetailBroadCast.java, com/insecureshop/SendingDataViaActionActivity.java]
+    types: [implicit_intent_exposure]
+    anchors: [action.WEBVIEW]
+  - id: 14
+    title: Insecure Implementation of SetResult in exported Activity
+    files: [com/insecureshop/ResultActivity.java]
+    types: [intent_redirection, exported_component_exposure]
+    anchors: [setResult]
+  - id: 15
+    title: Insecure Content Provider
+    files: [com/insecureshop/contentProvider/InsecureShopProvider.java, AndroidManifest.xml]
+    types: [content_provider_exposure]
+    anchors: [MatrixCursor, InsecureShopProvider, getPassword, permission.READ]
+  - id: 16
+    title: Lack of SSL Certificate Validation
+    files: [com/insecureshop/util/CustomWebViewClient.java]
+    types: [tls_validation_bypass]
+    anchors: [proceed, onReceivedSslError]
+  - id: 17
+    title: Insecure Webview Properties Enabled
+    files: [com/insecureshop/WebViewActivity.java, com/insecureshop/WebView2Activity.java, com/insecureshop/PrivateActivity.java]
+    types: [webview_insecure_settings]
+    anchors: [setAllowUniversalAccessFromFileURLs, setJavaScriptEnabled]
+  - id: 18
+    title: Insecure Data Storage
+    files: [com/insecureshop/util/Prefs.java, com/insecureshop/LoginActivity.java]
+    types: [insecure_data_storage]
+    anchors: [SharedPreferences, putString, setPassword, password]
+  - id: 19
+    title: Insecure Logging
+    files: [com/insecureshop/LoginActivity.java]
+    types: [sensitive_data_logging]
+    anchors: [Log.d]
